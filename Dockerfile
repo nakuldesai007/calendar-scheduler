@@ -13,5 +13,5 @@ COPY . .
 # Expose port
 EXPOSE 8080
 
-# Run the application with gunicorn
-CMD ["gunicorn", "--bind", "0.0.0.0:8080", "--workers", "2", "--timeout", "120", "schedule_creator_app:app"]
+# Run the application - Railway will use its own startCommand
+CMD ["python", "-c", "print('Container ready')"]
