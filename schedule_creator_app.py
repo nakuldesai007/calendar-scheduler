@@ -18,7 +18,7 @@ import pickle
 SCOPES = ['https://www.googleapis.com/auth/calendar']
 
 app = Flask(__name__)
-app.secret_key = 'your-secret-key-change-this'
+app.secret_key = os.environ.get('SECRET_KEY', 'your-secret-key-change-this-in-production')
 
 class ScheduleCreator:
     def __init__(self):
