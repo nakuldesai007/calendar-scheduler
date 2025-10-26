@@ -1,22 +1,18 @@
 #!/usr/bin/env python3
 """
 Schedule Creator Web Application
-A comprehensive web UI for creating optimized schedules, Git integration, and Docker deployment
+A clean web UI for creating optimized schedules and managing Google Calendar
 """
 
 import os
 import json
-import subprocess
-import git
 from datetime import datetime, timedelta
-from flask import Flask, render_template, request, jsonify, redirect, url_for, flash
+from flask import Flask, render_template, request, jsonify
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 from googleapiclient.discovery import build
 import pickle
-import threading
-import time
 
 # If modifying these scopes, delete the file token.pickle.
 SCOPES = ['https://www.googleapis.com/auth/calendar']
@@ -27,7 +23,6 @@ app.secret_key = 'your-secret-key-change-this'
 class ScheduleCreator:
     def __init__(self):
         self.service = None
-        self.git_repo = None
         
     def authenticate_google_calendar(self):
         """Authenticate and return Google Calendar service"""
@@ -49,22 +44,12 @@ class ScheduleCreator:
         self.service = build('calendar', 'v3', credentials=creds)
         return self.service
     
-    def initialize_git_repo(self):
-        """Initialize Git repository"""
-        try:
-            if not os.path.exists('.git'):
-                self.git_repo = git.Repo.init()
-                print("✅ Git repository initialized")
-            else:
-                self.git_repo = git.Repo('.')
-                print("✅ Git repository found")
-            return True
-        except Exception as e:
-            print(f"❌ Git initialization failed: {e}")
-            return False
-    
     def create_optimized_schedule(self, schedule_config):
         """Create optimized schedule based on configuration"""
+        
+        # Check if custom events are provided
+        if 'events' in schedule_config and schedule_config['events']:
+            return self.create_custom_schedule(schedule_config['events'])
         
         # Get current date and calculate the week
         today = datetime.now()
@@ -257,6 +242,53 @@ class ScheduleCreator:
         
         return optimized_schedule
     
+    def create_custom_schedule(self, events):
+        """Create schedule from custom events"""
+        schedule = []
+        
+        # Group events by date
+        events_by_date = {}
+        for event in events:
+            date_str = event['date']
+            if date_str not in events_by_date:
+                events_by_date[date_str] = []
+            events_by_date[date_str].append(event)
+        
+        # Convert to schedule format
+        for date_str, day_events in events_by_date.items():
+            date_obj = datetime.strptime(date_str, '%Y-%m-%d').date()
+            day_name = date_obj.strftime('%A')
+            
+            sessions = []
+            for event in day_events:
+                start_time = event['time']
+                duration = event.get('duration', 60)
+                
+                # Calculate end time
+                start_hour, start_min = map(int, start_time.split(':'))
+                start_minutes = start_hour * 60 + start_min
+                end_minutes = start_minutes + duration
+                end_hour = end_minutes // 60
+                end_min = end_minutes % 60
+                end_time = f"{end_hour:02d}:{end_min:02d}"
+                
+                sessions.append({
+                    'title': event['title'],
+                    'start': start_time,
+                    'end': end_time,
+                    'description': event.get('description', event['title']),
+                    'type': event.get('type', 'custom')
+                })
+            
+            schedule.append({
+                'date': date_obj,
+                'day_name': day_name,
+                'theme': f'📅 {day_name} Schedule',
+                'sessions': sessions
+            })
+        
+        return schedule
+    
     def save_schedule_to_calendar(self, schedule):
         """Save schedule to Google Calendar"""
         if not self.service:
@@ -337,37 +369,6 @@ class ScheduleCreator:
             
         except Exception as e:
             return False, f"Error saving schedule: {e}"
-    
-    def commit_to_git(self, message="Add optimized schedule"):
-        """Commit schedule to Git"""
-        try:
-            if not self.git_repo:
-                return False, "Git repository not initialized"
-            
-            # Add all files
-            self.git_repo.git.add('.')
-            
-            # Commit
-            self.git_repo.index.commit(message)
-            
-            return True, f"Committed: {message}"
-            
-        except Exception as e:
-            return False, f"Git commit failed: {e}"
-    
-    def push_to_remote(self, remote_name="origin", branch="main"):
-        """Push to remote Git repository"""
-        try:
-            if not self.git_repo:
-                return False, "Git repository not initialized"
-            
-            # Push to remote
-            self.git_repo.remotes[remote_name].push(branch)
-            
-            return True, f"Pushed to {remote_name}/{branch}"
-            
-        except Exception as e:
-            return False, f"Git push failed: {e}"
 
 # Global schedule creator instance
 schedule_creator = ScheduleCreator()
@@ -414,79 +415,6 @@ def create_schedule():
     except Exception as e:
         return jsonify({'success': False, 'message': f'Error creating schedule: {e}'})
 
-@app.route('/api/git/init')
-def git_init():
-    """Initialize Git repository"""
-    try:
-        success = schedule_creator.initialize_git_repo()
-        if success:
-            return jsonify({'success': True, 'message': 'Git repository initialized'})
-        else:
-            return jsonify({'success': False, 'message': 'Git initialization failed'})
-    except Exception as e:
-        return jsonify({'success': False, 'message': f'Git init error: {e}'})
-
-@app.route('/api/git/commit', methods=['POST'])
-def git_commit():
-    """Commit to Git"""
-    try:
-        data = request.get_json()
-        message = data.get('message', 'Add optimized schedule')
-        
-        success, message_result = schedule_creator.commit_to_git(message)
-        return jsonify({'success': success, 'message': message_result})
-        
-    except Exception as e:
-        return jsonify({'success': False, 'message': f'Git commit error: {e}'})
-
-@app.route('/api/git/push', methods=['POST'])
-def git_push():
-    """Push to remote Git repository"""
-    try:
-        data = request.get_json()
-        remote = data.get('remote', 'origin')
-        branch = data.get('branch', 'main')
-        
-        success, message = schedule_creator.push_to_remote(remote, branch)
-        return jsonify({'success': success, 'message': message})
-        
-    except Exception as e:
-        return jsonify({'success': False, 'message': f'Git push error: {e}'})
-
-@app.route('/api/docker/build')
-def docker_build():
-    """Build Docker image"""
-    try:
-        result = subprocess.run(['docker', 'build', '-t', 'schedule-creator', '.'], 
-                              capture_output=True, text=True, timeout=300)
-        
-        if result.returncode == 0:
-            return jsonify({'success': True, 'message': 'Docker image built successfully'})
-        else:
-            return jsonify({'success': False, 'message': f'Docker build failed: {result.stderr}'})
-            
-    except Exception as e:
-        return jsonify({'success': False, 'message': f'Docker build error: {e}'})
-
-@app.route('/api/docker/run', methods=['POST'])
-def docker_run():
-    """Run Docker container"""
-    try:
-        data = request.get_json()
-        port = data.get('port', '8080')
-        
-        result = subprocess.run([
-            'docker', 'run', '-d', '-p', f'{port}:8080', 
-            '--name', 'schedule-creator-app', 'schedule-creator'
-        ], capture_output=True, text=True, timeout=60)
-        
-        if result.returncode == 0:
-            return jsonify({'success': True, 'message': f'Docker container running on port {port}'})
-        else:
-            return jsonify({'success': False, 'message': f'Docker run failed: {result.stderr}'})
-            
-    except Exception as e:
-        return jsonify({'success': False, 'message': f'Docker run error: {e}'})
 
 if __name__ == '__main__':
     print("🚀 Starting Schedule Creator Web Application...")

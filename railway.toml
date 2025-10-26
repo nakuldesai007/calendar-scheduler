@@ -1,5 +1,5 @@
-# Railway Deployment Configuration
-# Deploy to Railway.app for permanent public URL
+# Railway.app Deployment Configuration
+# This makes your app permanent and accessible 24/7
 
 [build]
 builder = "nixpacks"
@@ -13,3 +13,4 @@ restartPolicyType = "on_failure"
 [env]
 FLASK_ENV = "production"
 PORT = "8080"
+PYTHON_VERSION = "3.11"

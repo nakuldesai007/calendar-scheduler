@@ -1,11 +1,11 @@
 # Render.com Deployment Configuration
-# Deploy to Render.com for permanent public URL
+# Alternative cloud platform for permanent deployment
 
 services:
   - type: web
-    name: schedule-creator
+    name: ai-schedule-creator
     env: python
-    buildCommand: pip install -r requirements.txt && pip install flask gitpython
+    buildCommand: pip install -r requirements.txt
     startCommand: python schedule_creator_app.py
     envVars:
       - key: FLASK_ENV
