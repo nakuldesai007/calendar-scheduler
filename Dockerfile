@@ -15,4 +15,4 @@ EXPOSE 8080
 
 # Run the application with gunicorn
 # Use $PORT env variable or default to 8080
-CMD gunicorn --bind "0.0.0.0:${PORT:-8080}" --workers 2 --threads 4 schedule_creator_app:app
+CMD gunicorn --bind "0.0.0.0:${PORT:-8080}" schedule_creator_app:app
