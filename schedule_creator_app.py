@@ -459,6 +459,11 @@ def create_schedule():
 
 if __name__ == '__main__':
     print("🚀 Starting Schedule Creator Web Application...")
-    print("📱 Open your browser and go to: http://localhost:8080")
     
-    app.run(debug=True, host='0.0.0.0', port=8080)
+    # Use PORT from environment or default to 8080
+    port = int(os.environ.get('PORT', 8080))
+    host = os.environ.get('HOST', '0.0.0.0')
+    
+    print(f"📱 Server running on http://{host}:{port}")
+    
+    app.run(debug=True, host=host, port=port)
