@@ -38,14 +38,25 @@ class ScheduleCreator:
                 import json
                 import io
                 print("Loading credentials from environment variables...")
+                print(f"Credentials length: {len(creds_json_env)}")
+                print(f"Token length: {len(token_env)}")
+                
+                # Remove quotes if present
+                if creds_json_env.startswith('"') and creds_json_env.endswith('"'):
+                    creds_json_env = creds_json_env[1:-1]
+                if token_env.startswith('"') and token_env.endswith('"'):
+                    token_env = token_env[1:-1]
                 
                 # Decode base64 token
                 token_data = base64.b64decode(token_env)
                 token_file = io.BytesIO(token_data)
                 creds = pickle.load(token_file)
                 print("✅ Successfully loaded token from environment")
+                print(f"Token valid: {creds.valid if creds else None}")
             except Exception as e:
                 print(f"❌ Error loading credentials from environment: {e}")
+                import traceback
+                traceback.print_exc()
                 return None
         
         # Check for existing token file
