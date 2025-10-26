@@ -4,8 +4,8 @@ FROM python:3.9-slim
 WORKDIR /app
 
 # Copy requirements and install dependencies
-COPY requirements-gcp.txt .
-RUN pip install --no-cache-dir -r requirements-gcp.txt
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
 COPY . .
@@ -13,5 +13,6 @@ COPY . .
 # Expose port
 EXPOSE 8080
 
-# Run the application
-CMD ["python", "main.py"]
+# Run the application with gunicorn
+# Use $PORT env variable or default to 8080
+CMD gunicorn --bind "0.0.0.0:${PORT:-8080}" --workers 2 --threads 4 schedule_creator_app:app

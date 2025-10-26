@@ -598,6 +598,27 @@
             .date-picker-container {
                 grid-template-columns: 1fr;
             }
+
+            .calendar-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            .calendar-nav {
+                flex-wrap: wrap;
+                width: 100%;
+            }
+
+            .calendar-day {
+                min-height: 60px;
+                font-size: 0.85rem;
+            }
+
+            .calendar-event {
+                font-size: 0.65rem;
+                padding: 0.15rem 0.35rem;
+            }
         }
 
         @media (max-width: 480px) {
@@ -609,6 +630,133 @@
             .btn-large {
                 padding: 1rem 2rem;
             }
+        }
+
+        /* Calendar View Styles */
+        .calendar-container {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--netflix-radius-large);
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid rgba(102, 126, 234, 0.3);
+        }
+
+        .calendar-nav {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .calendar-nav button {
+            background: transparent;
+            border: 2px solid rgba(102, 126, 234, 0.5);
+            color: rgba(102, 126, 234, 1);
+            padding: 0.5rem 1rem;
+            border-radius: var(--netflix-radius);
+            cursor: pointer;
+            transition: var(--netflix-transition);
+        }
+
+        .calendar-nav button:hover {
+            background: rgba(102, 126, 234, 0.2);
+            border-color: rgba(102, 126, 234, 1);
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 0.5rem;
+        }
+
+        .calendar-day {
+            min-height: 100px;
+            padding: 0.5rem;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--netflix-radius);
+            transition: var(--netflix-transition);
+        }
+
+        .calendar-day:hover {
+            background: rgba(0, 0, 0, 0.5);
+            border-color: rgba(102, 126, 234, 0.3);
+        }
+
+        .calendar-day-header {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--netflix-text-muted);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .calendar-day-number {
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: var(--netflix-text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .calendar-day.other-month {
+            opacity: 0.3;
+        }
+
+        .calendar-day.today {
+            border: 2px solid rgba(102, 126, 234, 0.5);
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .calendar-day.today .calendar-day-number {
+            background: var(--ai-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .calendar-event {
+            background: var(--ai-gradient);
+            color: white;
+            padding: 0.25rem 0.5rem;
+            margin: 0.25rem 0;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: var(--netflix-transition);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .calendar-event:hover {
+            transform: translateX(2px);
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
+        }
+
+        .week-days {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .week-day {
+            text-align: center;
+            font-weight: 700;
+            color: var(--netflix-text-secondary);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 0.5rem;
         }
 
         /* Interactive Animations */
@@ -659,6 +807,11 @@
                         <i class="fas fa-circle"></i>
                         <span>Ready for AI processing</span>
                     </div>
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <button class="btn btn-secondary" onclick="authenticateGoogle()" style="width: 100%;">
+                        <i class="fab fa-google"></i> Connect Google Calendar
+                    </button>
                 </div>
 
                 <div class="interactive-section">
@@ -747,6 +900,37 @@
                             <div class="progress-fill" id="scheduleProgressFill" style="width: 0%"></div>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Calendar View -->
+        <div class="card">
+            <h2><i class="fas fa-calendar-alt"></i> Calendar View</h2>
+            
+            <div class="calendar-container">
+                <div class="calendar-header">
+                    <h3 id="calendarMonthTitle">Loading calendar...</h3>
+                    <div class="calendar-nav">
+                        <button onclick="previousMonth()"><i class="fas fa-chevron-left"></i></button>
+                        <button onclick="todayMonth()"><i class="fas fa-home"></i> Today</button>
+                        <button onclick="nextMonth()"><i class="fas fa-chevron-right"></i></button>
+                        <button class="btn" onclick="loadCalendarEvents()"><i class="fas fa-sync"></i> Refresh</button>
+                    </div>
+                </div>
+
+                <div class="week-days">
+                    <div class="week-day">Sun</div>
+                    <div class="week-day">Mon</div>
+                    <div class="week-day">Tue</div>
+                    <div class="week-day">Wed</div>
+                    <div class="week-day">Thu</div>
+                    <div class="week-day">Fri</div>
+                    <div class="week-day">Sat</div>
+                </div>
+
+                <div id="calendarGrid" class="calendar-grid">
+                    <!-- Calendar will be generated here -->
                 </div>
             </div>
         </div>
@@ -1132,7 +1316,175 @@
             `;
         }
 
+        // Calendar functionality
+        let currentMonth = new Date().getMonth();
+        let currentYear = new Date().getFullYear();
+        let calendarEvents = [];
+
+        const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
+                           'July', 'August', 'September', 'October', 'November', 'December'];
+        const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+        function updateCalendarTitle() {
+            document.getElementById('calendarMonthTitle').textContent = 
+                `${monthNames[currentMonth]} ${currentYear}`;
+        }
+
+        function renderCalendar() {
+            const calendarGrid = document.getElementById('calendarGrid');
+            calendarGrid.innerHTML = '';
+
+            // Get first day of month and number of days
+            const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+            
+            // Get days from previous month to fill the first week
+            const prevMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+            const prevYear = currentMonth === 0 ? currentYear - 1 : currentYear;
+            const daysInPrevMonth = new Date(prevYear, prevMonth + 1, 0).getDate();
+
+            // Add previous month's days
+            for (let i = firstDay - 1; i >= 0; i--) {
+                const dayNum = daysInPrevMonth - i;
+                const dayDate = new Date(prevYear, prevMonth, dayNum);
+                calendarGrid.appendChild(createCalendarDay(dayNum, true, dayDate));
+            }
+
+            // Add current month's days
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayDate = new Date(currentYear, currentMonth, day);
+                const isToday = isTodayDate(dayDate);
+                calendarGrid.appendChild(createCalendarDay(day, false, dayDate, isToday));
+            }
+
+            // Add next month's days to complete the week
+            const remainingCells = 42 - (firstDay + daysInMonth);
+            for (let day = 1; day <= remainingCells; day++) {
+                const dayDate = new Date(currentYear, currentMonth + 1, day);
+                calendarGrid.appendChild(createCalendarDay(day, true, dayDate));
+            }
+
+            updateCalendarTitle();
+        }
+
+        function createCalendarDay(dayNum, isOtherMonth, date, isToday = false) {
+            const dayDiv = document.createElement('div');
+            dayDiv.className = `calendar-day${isOtherMonth ? ' other-month' : ''}${isToday ? ' today' : ''}`;
+            
+            const dayHeader = document.createElement('div');
+            dayHeader.className = 'calendar-day-header';
+            dayHeader.textContent = dayNames[date.getDay()];
+            
+            const dayNumber = document.createElement('div');
+            dayNumber.className = 'calendar-day-number';
+            dayNumber.textContent = dayNum;
+            
+            const eventsContainer = document.createElement('div');
+            eventsContainer.className = 'calendar-events';
+            
+            // Add events for this day
+            const dayEvents = getEventsForDate(date);
+            dayEvents.forEach(event => {
+                const eventDiv = document.createElement('div');
+                eventDiv.className = 'calendar-event';
+                eventDiv.textContent = event.title;
+                eventDiv.title = `${event.title} - ${event.start}`;
+                eventsContainer.appendChild(eventDiv);
+            });
+            
+            dayDiv.appendChild(dayHeader);
+            dayDiv.appendChild(dayNumber);
+            dayDiv.appendChild(eventsContainer);
+            
+            return dayDiv;
+        }
+
+        function getEventsForDate(date) {
+            return calendarEvents.filter(event => {
+                const eventDate = new Date(event.start);
+                return eventDate.toDateString() === date.toDateString();
+            });
+        }
+
+        function isTodayDate(date) {
+            const today = new Date();
+            return date.toDateString() === today.toDateString();
+        }
+
+        function previousMonth() {
+            currentMonth--;
+            if (currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+            }
+            renderCalendar();
+        }
+
+        function nextMonth() {
+            currentMonth++;
+            if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+            }
+            renderCalendar();
+        }
+
+        function todayMonth() {
+            const today = new Date();
+            currentMonth = today.getMonth();
+            currentYear = today.getFullYear();
+            renderCalendar();
+        }
+
+        async function authenticateGoogle() {
+            log('🔐 Authenticating with Google Calendar...', 'info');
+            showAlert('Connecting to Google Calendar...', 'info');
+            
+            try {
+                const response = await fetch('/api/auth/google');
+                const data = await response.json();
+                
+                if (data.success) {
+                    showAlert('✅ Successfully connected to Google Calendar!', 'success');
+                    log('✅ Google Calendar authenticated', 'success');
+                    updateStatus('googleStatus', 'success', 'Connected to Google Calendar');
+                    await loadCalendarEvents();
+                } else {
+                    showAlert('⚠️ ' + data.message, 'warning');
+                    log('⚠️ ' + data.message, 'warning');
+                    updateStatus('googleStatus', 'warning', 'Authentication required');
+                }
+            } catch (error) {
+                showAlert('❌ Error: ' + error.message, 'error');
+                log('❌ Authentication error: ' + error.message, 'error');
+            }
+        }
+
+        async function loadCalendarEvents() {
+            log('🔄 Loading calendar events...', 'info');
+            showAlert('Loading calendar events...', 'info');
+            
+            try {
+                const response = await fetch('/api/get-calendar-events');
+                const data = await response.json();
+                
+                if (data.success && data.events) {
+                    calendarEvents = data.events;
+                    renderCalendar();
+                    showAlert(`✅ Loaded ${calendarEvents.length} events from your calendar!`, 'success');
+                    log(`✅ Loaded ${calendarEvents.length} calendar events`, 'success');
+                } else {
+                    showAlert('⚠️ ' + (data.message || 'Unable to load calendar events. Please authenticate first.'), 'warning');
+                    log('⚠️ No calendar events loaded', 'warning');
+                }
+            } catch (error) {
+                showAlert('❌ Error loading calendar: ' + error.message, 'error');
+                log('❌ Error loading calendar: ' + error.message, 'error');
+            }
+        }
+
         // Initialize
+        renderCalendar();
         log('🚀 AI Schedule Creator with NLP initialized', 'success');
         log('💡 Ready to process natural language input', 'info');
     </script>
