@@ -30,19 +30,32 @@ class ScheduleCreator:
         
         # Check for existing token
         if os.path.exists('token.pickle'):
-            with open('token.pickle', 'rb') as token:
-                creds = pickle.load(token)
+            try:
+                with open('token.pickle', 'rb') as token:
+                    creds = pickle.load(token)
+            except Exception as e:
+                print(f"Error loading token: {e}")
+                return None
         
         # If there are no (valid) credentials available, let the user log in.
         if not creds or not creds.valid:
             if creds and creds.expired and creds.refresh_token:
-                print("🔄 Refreshing expired credentials...")
-                creds.refresh(Request())
+                try:
+                    print("🔄 Refreshing expired credentials...")
+                    creds.refresh(Request())
+                except Exception as e:
+                    print(f"Error refreshing credentials: {e}")
+                    return None
             else:
+                print("No valid credentials found")
                 return None
         
-        self.service = build('calendar', 'v3', credentials=creds)
-        return self.service
+        try:
+            self.service = build('calendar', 'v3', credentials=creds)
+            return self.service
+        except Exception as e:
+            print(f"Error building calendar service: {e}")
+            return None
     
     def create_optimized_schedule(self, schedule_config):
         """Create optimized schedule based on configuration"""
@@ -425,11 +438,23 @@ def auth_google():
     try:
         service = schedule_creator.authenticate_google_calendar()
         if service:
-            return jsonify({'success': True, 'message': 'Google Calendar authenticated successfully'})
+            return jsonify({
+                'success': True, 
+                'message': 'Google Calendar authenticated successfully',
+                'info': 'To use this feature, you need credentials.json and token.pickle files from Google Cloud Console'
+            })
         else:
-            return jsonify({'success': False, 'message': 'Google Calendar authentication failed'})
+            return jsonify({
+                'success': False, 
+                'message': 'Google Calendar authentication failed',
+                'info': 'Missing credentials.json or token.pickle. Please add these files to your deployment for Google Calendar integration to work.'
+            })
     except Exception as e:
-        return jsonify({'success': False, 'message': f'Authentication error: {e}'})
+        return jsonify({
+            'success': False, 
+            'message': f'Authentication error: {str(e)}',
+            'info': 'Google Calendar authentication requires credentials.json and token.pickle files'
+        })
 
 @app.route('/api/create-schedule', methods=['POST'])
 def create_schedule():
