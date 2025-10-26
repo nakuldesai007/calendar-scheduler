@@ -14,4 +14,4 @@ COPY . .
 EXPOSE 8080
 
 # Run the application with gunicorn
-CMD ["sh", "-c", "gunicorn --bind 0.0.0.0:${PORT:-8080} schedule_creator_app:app"]
+CMD ["gunicorn", "--bind", "0.0.0.0:8080", "--workers", "2", "--timeout", "120", "schedule_creator_app:app"]
