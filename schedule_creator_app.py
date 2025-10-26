@@ -28,8 +28,33 @@ class ScheduleCreator:
         """Authenticate and return Google Calendar service"""
         creds = None
         
-        # Check for existing token
-        if os.path.exists('token.pickle'):
+        # Try to load credentials from environment variable (Railway)
+        creds_json_env = os.environ.get('GOOGLE_CREDENTIALS')
+        token_env = os.environ.get('GOOGLE_TOKEN')
+        
+        if creds_json_env:
+            try:
+                import base64
+                import json
+                import io
+                # Decode base64 credentials
+                creds_json = base64.b64decode(creds_json_env).decode('utf-8')
+                creds_info = json.loads(creds_json)
+                
+                # Try to load token from environment
+                if token_env:
+                    token_data = base64.b64decode(token_env)
+                    token_file = io.BytesIO(token_data)
+                    creds = pickle.load(token_file)
+                else:
+                    print("No token found in environment")
+                    return None
+            except Exception as e:
+                print(f"Error loading credentials from environment: {e}")
+                return None
+        
+        # Check for existing token file
+        elif os.path.exists('token.pickle'):
             try:
                 with open('token.pickle', 'rb') as token:
                     creds = pickle.load(token)
