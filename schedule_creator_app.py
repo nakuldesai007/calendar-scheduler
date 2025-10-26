@@ -413,6 +413,18 @@ def index():
     """Main page"""
     return render_template('schedule_creator.html')
 
+@app.route('/api/test-credentials')
+def test_credentials():
+    """Test if credentials are loaded"""
+    creds_exists = os.environ.get('GOOGLE_CREDENTIALS') is not None
+    token_exists = os.environ.get('GOOGLE_TOKEN') is not None
+    
+    return jsonify({
+        'credentials_set': creds_exists,
+        'token_set': token_exists,
+        'both_set': creds_exists and token_exists
+    })
+
 @app.route('/api/get-calendar-events')
 def get_calendar_events():
     """Get calendar events from Google Calendar"""
