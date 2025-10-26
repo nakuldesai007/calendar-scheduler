@@ -378,6 +378,47 @@ def index():
     """Main page"""
     return render_template('schedule_creator.html')
 
+@app.route('/api/get-calendar-events')
+def get_calendar_events():
+    """Get calendar events from Google Calendar"""
+    try:
+        service = schedule_creator.authenticate_google_calendar()
+        if not service:
+            return jsonify({'success': False, 'message': 'Not authenticated'})
+        
+        # Get events for the next 7 days
+        now = datetime.now()
+        time_min = now.isoformat() + 'Z'
+        time_max = (now + timedelta(days=7)).isoformat() + 'Z'
+        
+        events_result = service.events().list(
+            calendarId='primary',
+            timeMin=time_min,
+            timeMax=time_max,
+            singleEvents=True,
+            orderBy='startTime'
+        ).execute()
+        
+        events = events_result.get('items', [])
+        
+        # Format events
+        formatted_events = []
+        for event in events:
+            start = event['start'].get('dateTime', event['start'].get('date'))
+            end = event['end'].get('dateTime', event['end'].get('date'))
+            
+            formatted_events.append({
+                'title': event.get('summary', 'No Title'),
+                'start': start,
+                'end': end,
+                'description': event.get('description', '')
+            })
+        
+        return jsonify({'success': True, 'events': formatted_events})
+        
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)})
+
 @app.route('/api/auth/google')
 def auth_google():
     """Authenticate with Google Calendar"""
