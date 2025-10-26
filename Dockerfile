@@ -13,5 +13,5 @@ COPY . .
 # Expose port
 EXPOSE 8080
 
-# Railway will use startCommand from railway.toml
-CMD ["echo", "Use Railway startCommand"]
+# Run the application with gunicorn
+CMD ["sh", "-c", "gunicorn --bind 0.0.0.0:${PORT:-8080} schedule_creator_app:app"]
