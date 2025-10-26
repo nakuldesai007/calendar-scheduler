@@ -808,10 +808,16 @@
                         <span>Ready for AI processing</span>
                     </div>
                 </div>
-                <div style="margin-bottom: 1rem;">
-                    <button class="btn btn-secondary" onclick="authenticateGoogle()" style="width: 100%;">
-                        <i class="fab fa-google"></i> Connect Google Calendar
+                <div style="margin-bottom: 1.5rem; padding: 1rem; background: rgba(102, 126, 234, 0.1); border-radius: 8px; border: 2px solid rgba(102, 126, 234, 0.3);">
+                    <h3 style="margin-bottom: 0.75rem; font-size: 1rem; color: var(--netflix-text-primary);">
+                        <i class="fab fa-google" style="color: #4285f4;"></i> Google Calendar Integration
+                    </h3>
+                    <button class="btn" onclick="authenticateGoogle()" style="width: 100%; background: #4285f4; border: none;">
+                        <i class="fab fa-google"></i> Connect to Google Calendar
                     </button>
+                    <p style="margin-top: 0.75rem; font-size: 0.85rem; color: var(--netflix-text-secondary);">
+                        Connect to sync your existing calendar events and view them in the calendar view below
+                    </p>
                 </div>
 
                 <div class="interactive-section">
@@ -908,6 +914,15 @@
         <div class="card">
             <h2><i class="fas fa-calendar-alt"></i> Calendar View</h2>
             
+            <div style="margin-bottom: 1.5rem; padding: 1rem; background: rgba(102, 126, 234, 0.1); border-radius: 8px; border: 2px solid rgba(102, 126, 234, 0.3);">
+                <button class="btn" onclick="loadCalendarEvents()" style="width: 100%; background: var(--ai-gradient);">
+                    <i class="fas fa-sync"></i> Load Calendar Events from Google
+                </button>
+                <p style="margin-top: 0.75rem; font-size: 0.85rem; color: var(--netflix-text-secondary); text-align: center;">
+                    Click to load and display your Google Calendar events in the calendar below
+                </p>
+            </div>
+            
             <div class="calendar-container">
                 <div class="calendar-header">
                     <h3 id="calendarMonthTitle">Loading calendar...</h3>
@@ -915,7 +930,6 @@
                         <button onclick="previousMonth()"><i class="fas fa-chevron-left"></i></button>
                         <button onclick="todayMonth()"><i class="fas fa-home"></i> Today</button>
                         <button onclick="nextMonth()"><i class="fas fa-chevron-right"></i></button>
-                        <button class="btn" onclick="loadCalendarEvents()"><i class="fas fa-sync"></i> Refresh</button>
                     </div>
                 </div>
 
