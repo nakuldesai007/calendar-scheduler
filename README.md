@@ -1,166 +1,87 @@
 # 📅 Google Calendar Work Scheduler
 
-A Python script that automatically creates a detailed work schedule in your Google Calendar, designed for busy professionals with multiple commitments including bootcamp sessions.
+Creates clean, organized work schedules with specialized calendars.
 
-## 🎯 Features
+## 🎯 Essential Scripts
 
-- **Automated Schedule Creation**: Creates a complete 5-day work schedule (Sunday-Thursday)
-- **Bootcamp Integration**: Properly schedules bootcamp sessions (Tuesday & Thursday 8AM-1PM)
-- **Detailed Task Blocks**: Includes specific time blocks for:
-  - Carried over JIRA work (git comparison, test analysis)
-  - Use case analysis and implementation
-  - Integration testing
-  - Regular JIRA work
-  - Review and submission tasks
-- **Smart Reminders**: Email and popup notifications (1 day + 30 min before)
-- **Timezone Support**: Configurable timezone handling
-- **Google Calendar Integration**: Direct API integration with your Google Calendar
+### 🚀 `fresh_schedule_creator.py`
+**Main script** - Creates a clean work schedule with:
+- 5 specialized calendars (Development, Bootcamp, Analysis, Documentation, Review)
+- Respects organization-wide bootcamp timing (8 AM - 1 PM)
+- Focused 1.5-hour work sessions
+- Clear separation of work types
 
-## 📋 Prerequisites
-
-- Python 3.6+
-- Google Cloud Project with Calendar API enabled
-- Google Calendar API credentials
+### 📊 `schedule_dashboard.py`
+**Visual dashboard** - Shows your schedule in an easy-to-read format:
+- Week overview with all sessions
+- Color-coded work types
+- Time summaries and statistics
+- Quick reference for daily planning
 
 ## 🚀 Quick Start
 
-### 1. Clone the Repository
-```bash
-git clone <your-repo-url>
-cd calendar-scheduler
-```
-
-### 2. Install Dependencies
-```bash
-pip install -r requirements.txt
-```
-
-### 3. Google Cloud Setup
-1. Go to [Google Cloud Console](https://console.cloud.google.com/)
-2. Create a new project or select existing one
-3. Enable the Google Calendar API:
-   - Go to "APIs & Services" > "Library"
-   - Search for "Google Calendar API"
-   - Click "Enable"
-
-### 4. Create Credentials
-1. Go to "APIs & Services" > "Credentials"
-2. Click "Create Credentials" > "OAuth client ID"
-3. Choose "Desktop application"
-4. Download the JSON file and rename it to `credentials.json`
-5. Place `credentials.json` in the project directory
-
-### 5. Run the Script
-```bash
-python calendar_scheduler.py
-```
-
-### 6. First Run Authentication
-- The script will open your browser
-- Sign in to your Google account
-- Grant permissions to access your calendar
-- The script will create a `token.pickle` file for future runs
+1. **Setup**: Follow `setup_instructions.md`
+2. **Create Schedule**: `python fresh_schedule_creator.py`
+3. **View Dashboard**: `python schedule_dashboard.py`
 
 ## 📅 Schedule Overview
 
-### **Sunday** (9AM-6PM)
-- **9AM-1PM**: Carried Over JIRA - Git Comparison & Test Analysis
-- **2PM-6PM**: Use Case Analysis & Documentation
+### **Sunday** - Analysis & Planning
+- 9:00-10:30 AM: JIRA Analysis - Git Comparison
+- 10:45-12:15 PM: Test Failure Investigation
+- 2:00-3:30 PM: Use Case Documentation
+- 3:45-5:15 PM: Implementation Planning
 
-### **Monday** (9AM-6PM)  
-- **9AM-1PM**: Use Case Implementation
-- **2PM-6PM**: Integration Testing Setup
+### **Monday** - Development Focus
+- 9:00-10:30 AM: Use Case Implementation - Core Logic
+- 10:45-12:15 PM: Use Case Implementation - Integration
+- 2:00-3:30 PM: Test Environment Setup
+- 3:45-5:15 PM: Integration Test Development
 
-### **Tuesday**
-- **8AM-1PM**: Bootcamp Session
-- **2PM-7PM**: Development & Testing
+### **Tuesday** - Bootcamp & Development
+- 8:00 AM-1:00 PM: **Bootcamp Session** (Organization-wide)
+- 2:00-3:30 PM: Post-Bootcamp Development
+- 3:45-5:15 PM: Testing & Debugging
+- 5:30-7:00 PM: Regular JIRA Tasks
 
-### **Wednesday** (9AM-6PM)
-- **9AM-1PM**: Final Development Push  
-- **2PM-6PM**: Review & Submission
+### **Wednesday** - Testing & Review
+- 9:00-10:30 AM: Comprehensive Testing
+- 10:45-12:15 PM: Bug Fixing Session
+- 2:00-3:30 PM: Final Development Push
+- 3:45-5:15 PM: Code Review Preparation
 
-### **Thursday**
-- **8AM-1PM**: Bootcamp Session
-- **2PM-7PM**: Wrap-up & Documentation
+### **Thursday** - Bootcamp & Finalization
+- 8:00 AM-1:00 PM: **Bootcamp Session** (Organization-wide)
+- 2:00-3:30 PM: Final Review & Submission
+- 3:45-5:15 PM: Documentation Finalization
+- 5:30-7:00 PM: Project Wrap-up
 
-**Total work time: 34 hours** across 5 days, perfectly balanced with bootcamp schedule!
+## 🎯 Key Features
 
-## ⚙️ Customization
-
-You can modify the schedule by editing the `schedule` list in the `create_work_schedule()` function:
-
-```python
-schedule = [
-    {
-        'date': sunday,
-        'events': [
-            {
-                'title': 'Your Custom Task',
-                'start': '09:00',
-                'end': '13:00',
-                'description': 'Detailed description of the task',
-                'location': 'Optional location'
-            }
-        ]
-    }
-]
-```
-
-### Configuration Options:
-- **Times**: Modify 'start' and 'end' values (24-hour format)
-- **Descriptions**: Update task descriptions
-- **Locations**: Add specific locations
-- **Timezone**: Adjust timezone in `create_calendar_event()` function
-
-## 🔧 Troubleshooting
-
-### Common Issues:
-- **Authentication errors**: Delete `token.pickle` and run again
-- **Missing credentials**: Ensure `credentials.json` is in the correct location
-- **API errors**: Verify Google Calendar API is enabled in your project
-- **Permission errors**: Check that OAuth scopes include calendar access
-
-### Debug Mode:
-Add print statements to track the authentication flow:
-```python
-print(f"Creating event: {title} from {start_time} to {end_time}")
-```
+- ✅ Clean, organized calendars
+- ✅ Respects bootcamp organization schedule
+- ✅ Focused work sessions (1.5 hours)
+- ✅ 5 specialized calendars for organization
+- ✅ Visual dashboard for easy viewing
+- ✅ Smart reminders (1 day + 15 min before)
 
 ## 📁 Project Structure
 
 ```
 calendar-scheduler/
-├── calendar_scheduler.py    # Main script
-├── requirements.txt         # Python dependencies
-├── README.md               # This file
-├── credentials.json        # Google API credentials (you provide)
-└── token.pickle           # Authentication token (auto-generated)
+├── fresh_schedule_creator.py    # Main script
+├── schedule_dashboard.py        # Visual dashboard
+├── requirements.txt             # Dependencies
+├── setup_instructions.md        # Setup guide
+├── credentials.json             # Google API credentials
+└── token.pickle                 # Authentication token
 ```
 
-## 🤝 Contributing
+## 🔧 Troubleshooting
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## 📝 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- Google Calendar API for seamless integration
-- Python community for excellent libraries
-- All contributors who help improve this tool
-
-## 📞 Support
-
-If you encounter any issues or have questions:
-1. Check the troubleshooting section above
-2. Review the Google Calendar API documentation
-3. Open an issue in this repository
+- **Authentication errors**: Delete `token.pickle` and run again
+- **Missing credentials**: Ensure `credentials.json` is in the correct location
+- **API errors**: Verify Google Calendar API is enabled
 
 ---
 

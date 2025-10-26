@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Productivity Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card h2 {
+            color: #4a5568;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .progress-bar {
+            background: #e2e8f0;
+            border-radius: 10px;
+            height: 20px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #48bb78, #38a169);
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.8rem;
+        }
+
+        .current-event {
+            background: linear-gradient(135deg, #48bb78, #38a169);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .current-event h3 {
+            margin-bottom: 10px;
+            font-size: 1.3rem;
+        }
+
+        .current-event .time {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .next-event {
+            background: linear-gradient(135deg, #ed8936, #dd6b20);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .next-event h3 {
+            margin-bottom: 10px;
+            font-size: 1.3rem;
+        }
+
+        .next-event .time {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .week-view {
+            grid-column: 1 / -1;
+        }
+
+        .day-column {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 15px;
+        }
+
+        .day-card {
+            background: #f7fafc;
+            border-radius: 10px;
+            padding: 15px;
+            border-left: 4px solid #667eea;
+        }
+
+        .day-header {
+            font-weight: bold;
+            color: #4a5568;
+            margin-bottom: 15px;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+
+        .event-item {
+            background: white;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+            border-left: 3px solid #48bb78;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .event-item.current {
+            border-left-color: #ed8936;
+            background: #fff5f5;
+        }
+
+        .event-item.completed {
+            border-left-color: #a0aec0;
+            background: #f7fafc;
+            opacity: 0.7;
+        }
+
+        .event-title {
+            font-weight: bold;
+            color: #2d3748;
+            margin-bottom: 5px;
+        }
+
+        .event-time {
+            font-size: 0.9rem;
+            color: #718096;
+        }
+
+        .event-duration {
+            font-size: 0.8rem;
+            color: #a0aec0;
+            margin-top: 3px;
+        }
+
+        .no-events {
+            text-align: center;
+            color: #a0aec0;
+            font-style: italic;
+            padding: 20px;
+        }
+
+        .refresh-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.9);
+            padding: 10px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            color: #4a5568;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: white;
+        }
+
+        .spinner {
+            border: 4px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top: 4px solid white;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .day-column {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Productivity Dashboard</h1>
+            <p>Stay on track with your optimized schedule</p>
+        </div>
+
+        <div class="refresh-indicator" id="refreshIndicator">
+            Last updated: <span id="lastUpdate">Loading...</span>
+        </div>
+
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p>Loading your schedule...</p>
+        </div>
+
+        <div id="dashboard" style="display: none;">
+            <div class="dashboard-grid">
+                <!-- Current Status Card -->
+                <div class="card">
+                    <h2>📊 Current Status</h2>
+                    <div id="currentStatus">
+                        <!-- Current event will be loaded here -->
+                    </div>
+                    <div id="nextEvent">
+                        <!-- Next event will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Progress Card -->
+                <div class="card">
+                    <h2>📈 Progress Overview</h2>
+                    <div class="stats-grid" id="statsGrid">
+                        <!-- Stats will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Week View -->
+                <div class="card week-view">
+                    <h2>📅 Weekly Schedule</h2>
+                    <div class="day-column" id="weekView">
+                        <!-- Week view will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let events = [];
+        let stats = {};
+
+        // Load data from API
+        async function loadData() {
+            try {
+                const [eventsResponse, statsResponse] = await Promise.all([
+                    fetch('/api/events'),
+                    fetch('/api/stats')
+                ]);
+
+                events = await eventsResponse.json();
+                stats = await statsResponse.json();
+
+                updateDashboard();
+                updateLastUpdateTime();
+            } catch (error) {
+                console.error('Error loading data:', error);
+            }
+        }
+
+        // Update dashboard with loaded data
+        function updateDashboard() {
+            updateCurrentStatus();
+            updateStats();
+            updateWeekView();
+            
+            // Hide loading, show dashboard
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('dashboard').style.display = 'block';
+        }
+
+        // Update current status
+        function updateCurrentStatus() {
+            const currentStatusDiv = document.getElementById('currentStatus');
+            const nextEventDiv = document.getElementById('nextEvent');
+
+            const currentEvent = events.find(e => e.is_current);
+            const upcomingEvents = events.filter(e => e.is_upcoming);
+            const nextEvent = upcomingEvents.length > 0 ? upcomingEvents[0] : null;
+
+            if (currentEvent) {
+                currentStatusDiv.innerHTML = `
+                    <div class="current-event">
+                        <h3>🎯 Currently Working On</h3>
+                        <div class="event-title">${currentEvent.title}</div>
+                        <div class="time">${currentEvent.start_str} - ${currentEvent.end_str}</div>
+                    </div>
+                `;
+            } else {
+                currentStatusDiv.innerHTML = `
+                    <div style="text-align: center; padding: 20px; color: #718096;">
+                        <h3>✅ No current session</h3>
+                        <p>Take a break or prepare for your next task!</p>
+                    </div>
+                `;
+            }
+
+            if (nextEvent) {
+                nextEventDiv.innerHTML = `
+                    <div class="next-event">
+                        <h3>⏭️ Next Up</h3>
+                        <div class="event-title">${nextEvent.title}</div>
+                        <div class="time">${nextEvent.start_str} - ${nextEvent.end_str}</div>
+                    </div>
+                `;
+            } else {
+                nextEventDiv.innerHTML = `
+                    <div style="text-align: center; padding: 20px; color: #718096;">
+                        <h3>🎉 All done for today!</h3>
+                        <p>Great work on completing your schedule!</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Update statistics
+        function updateStats() {
+            const statsGrid = document.getElementById('statsGrid');
+            
+            statsGrid.innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-number">${stats.total_events || 0}</div>
+                    <div class="stat-label">Total Sessions</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${stats.completed_events || 0}</div>
+                    <div class="stat-label">Completed</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${stats.current_events || 0}</div>
+                    <div class="stat-label">Current</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${stats.upcoming_events || 0}</div>
+                    <div class="stat-label">Upcoming</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${Math.round(stats.completion_percentage || 0)}%</div>
+                    <div class="stat-label">Progress</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${Math.round(stats.total_hours || 0)}h</div>
+                    <div class="stat-label">Total Hours</div>
+                </div>
+            `;
+
+            // Add progress bar
+            const progressBar = document.createElement('div');
+            progressBar.innerHTML = `
+                <div style="margin-top: 20px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                        <span>Weekly Progress</span>
+                        <span>${Math.round(stats.completion_percentage || 0)}%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${stats.completion_percentage || 0}%">
+                            ${Math.round(stats.completion_percentage || 0)}%
+                        </div>
+                    </div>
+                </div>
+            `;
+            statsGrid.appendChild(progressBar);
+        }
+
+        // Update week view
+        function updateWeekView() {
+            const weekView = document.getElementById('weekView');
+            const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
+            
+            weekView.innerHTML = days.map(day => {
+                const dayEvents = events.filter(e => e.day_name === day);
+                
+                return `
+                    <div class="day-card">
+                        <div class="day-header">${day}</div>
+                        ${dayEvents.length > 0 ? 
+                            dayEvents.map(event => `
+                                <div class="event-item ${event.is_current ? 'current' : ''} ${event.is_completed ? 'completed' : ''}">
+                                    <div class="event-title">${event.title}</div>
+                                    <div class="event-time">${event.start_str} - ${event.end_str}</div>
+                                    <div class="event-duration">${event.duration.toFixed(1)}h</div>
+                                </div>
+                            `).join('') :
+                            '<div class="no-events">No events scheduled</div>'
+                        }
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Update last update time
+        function updateLastUpdateTime() {
+            const now = new Date();
+            document.getElementById('lastUpdate').textContent = now.toLocaleTimeString();
+        }
+
+        // Auto-refresh every 30 seconds
+        setInterval(loadData, 30000);
+
+        // Initial load
+        loadData();
+    </script>
+</body>
+</html>

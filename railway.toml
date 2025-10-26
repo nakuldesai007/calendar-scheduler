@@ -1,0 +1,15 @@
+# Railway Deployment Configuration
+# Deploy to Railway.app for permanent public URL
+
+[build]
+builder = "nixpacks"
+
+[deploy]
+startCommand = "python schedule_creator_app.py"
+healthcheckPath = "/"
+healthcheckTimeout = 300
+restartPolicyType = "on_failure"
+
+[env]
+FLASK_ENV = "production"
+PORT = "8080"
